@@ -1,0 +1,26 @@
+.table {
+	max-width: 100%;
+	border: 1px solid #9C9C9C;
+	background-color: #EAEAEA;
+}
+
+	.table thead tr {
+		background-color: #2D78B2;
+		color: white;
+	}
+
+	.table tbody.collapse.in {
+		display: table-row-group;
+	}
+
+	.table tbody {
+		background-color: white;
+	}
+
+	.table td, .table th, .table tr {
+		border: 1px solid #9C9B9C;
+	}
+
+.input-search {
+	width: 350px !important;
+}
