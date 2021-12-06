@@ -5,8 +5,6 @@ export function ValidateInput(name, value, regex = "") {
         var checkRegex = new RegExp(regex)
         if (regex != '' && !(checkRegex.test(value))) {
             return name + " is not valid."
-        } else {
-            return "";
         }
     }
 }
@@ -19,7 +17,6 @@ export function ValidatePasswordConfirm(password, passwordConfirm) {
             return "Password and password confirm is not the same."
         }
     }
-    return "";
 }
 
 export function GetMaxPage(number) {

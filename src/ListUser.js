@@ -6,52 +6,37 @@ import Alert from './Alert'
 import { Link, Redirect } from "react-router-dom";
 
 export default function ListUser() {
-    const [users, setUser] = useState([]);
+    const [users, setUsers] = useState([]);
     const [name, setName] = useState("");
     const [confirm, setConfirm] = useState("");
     const [alert, setAlert] = useState("");
-    const [redirect, setRedirect] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const listPage = [];
+    const [listPage, setListPage] = useState([]);
 
-    useEffect(async () => {
-        if (sessionStorage.getItem(process.env.REACT_APP_SESSION_LOGIN) == null) {
-            setRedirect(true);
-        } else {
-            axios.get(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LIST_USER, {
-                params: {
-                    name: name,
-                }
-            }).then(response => {
-                setUser(response.data);
-            }).catch(err => {
-                console.error(err);
-            });
-        }
-    }, []);
-
-    if (redirect) {
+    if (sessionStorage.getItem(process.env.REACT_APP_SESSION_LOGIN) == null) {
         return <Redirect to={process.env.REACT_APP_URL_LOGIN} />;
     }
 
-    if (users != null) {
-        for (let i = 1; i <= Math.ceil(users.length / 8); i++) {
-            listPage.push(i);
-        }
+    const getUserServer = async () => {
+        await axios.get(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LIST_USER, {
+            params: {
+                name,
+            }
+        }).then(response => {
+            let userList = response.data;
+            setUsers([...userList]);
+            setCurrentPage(1);
+            setListPage([...getListPage(userList)]);
+        });
     }
+
+    useEffect(() => {
+        getUserServer();
+    }, []);
 
     const handleSubmit = (evt) => {
         evt.preventDefault();
-        axios.get(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LIST_USER, {
-            params: {
-                name: name,
-            }
-        }).then(response => {
-            setUser(response.data);
-            setCurrentPage(1);
-        }).catch(err => {
-            console.error(err);
-        });
+        getUserServer();
     }
 
     const handleCancel = e => {
@@ -59,9 +44,9 @@ export default function ListUser() {
         setConfirm("");
     }
 
-    const handleOK = e => {
+    const handleOK = async e => {
         e.preventDefault();
-        axios.delete(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_DELETE_USER, {
+        await axios.delete(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_DELETE_USER, {
             params: {
                 userId: sessionStorage.getItem(process.env.REACT_APP_SESSION_DELETE),
             }
@@ -79,17 +64,15 @@ export default function ListUser() {
         setConfirm("");
     }
 
-    const handedNextPage = e => {
-        var page = currentPage;
-        setCurrentPage(page + 1);
+    const getListPage = (userList) => {
+        let listPage = [];
+        if (userList != null) {
+            for (let i = 1; i <= Math.ceil(userList.length / 8); i++) {
+                listPage.push(i);
+            }
+        }
+        return listPage;
     }
-
-    const handedPreviousPage = e => {
-        var page = currentPage;
-        setCurrentPage(page - 1);
-    }
-
-
 
     return (
         <div>
@@ -129,7 +112,7 @@ export default function ListUser() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {users.slice((currentPage - 1) * 8, currentPage * 8).map((user, index) => (
+                                {users && users.slice((currentPage - 1) * 8, currentPage * 8).map((user, index) => (
                                     <tr key={index}>
                                         <th scope="row" className="text-center" style={{ wordBreak: "break-all" }}>{index + (currentPage - 1) * 8 + 1}</th>
                                         <td style={{ wordBreak: "break-all" }}>{user.name}</td>
@@ -154,10 +137,10 @@ export default function ListUser() {
                             <ul className="pagination">
                                 {currentPage > 1 &&
                                     <li className="page-item">
-                                        <a className="page-link" aria-label="Previous" onClick={handedPreviousPage}><span aria-hidden="true">&laquo;</span></a>
+                                        <a className="page-link" aria-label="Previous" onClick={() => setCurrentPage(currentPage - 1)}><span aria-hidden="true">&laquo;</span></a>
                                     </li>
                                 }
-                                {listPage.slice(currentPage - 1, currentPage + 2).map((page, index) => (
+                                {listPage && listPage.slice(currentPage - 1, currentPage + 2).map((page, index) => (
                                     (currentPage === page ? (
                                         <li className="page-item" key={index}>
                                             <a className="page-link text-white" style={{ backgroundColor: "#2D78B2" }}>{page}</a>
@@ -170,7 +153,7 @@ export default function ListUser() {
                                 ))}
                                 {currentPage < listPage.length &&
                                     <li className="page-item">
-                                        <a className="page-link" onClick={handedNextPage}><span aria-hidden="true">&raquo;</span></a>
+                                        <a className="page-link" onClick={() => setCurrentPage(currentPage + 1)}><span aria-hidden="true">&raquo;</span></a>
                                     </li>
                                 }
                             </ul>
