@@ -30,7 +30,7 @@ export default function ListUser() {
         });
     }
 
-    useEffect(() => {
+    useEffect(async () => {
         getUserServer();
     }, []);
 
