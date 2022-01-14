@@ -18,9 +18,9 @@ export default function EditUser() {
     const [alert, setAlert] = useState("");
     const [errors, setErrors] = useState([]);
 
-    useEffect(async () => {
+    useEffect(() => {
         var userId = sessionStorage.getItem(process.env.REACT_APP_SESSION_EDIT);
-        if (userId == null) {
+        if (userId === null) {
             setRedirect(true);
         }
         else {
@@ -43,66 +43,49 @@ export default function EditUser() {
     }
 
     const handleSubmit = (evt) => {
-        console.log(data)
         evt.preventDefault();
-        var txtUserId = data.userId;
-        var txtEmail = data.email;
-        var txtName = data.name;
-        var txtTel = data.tel;
-        var txtPassword = data.password;
-        var txtPasswordConfirm = data.passwordConfirm;
-        var txtError = [];
-        var validateEmail = ValidateInput("Email", txtEmail, "^[\\w]+@[a-z]+\\.[a-z]+$");
-        var validateName = ValidateInput("Name", txtName, "^[A-Za-z\\s]+$")
-        var validateTel = ValidateInput("Tel", txtTel, "^[0][0-9]{9}$")
-        var validatePassword = "";
-        var validatePasswordConfirm = "";
-        if (txtPassword != "" && txtPassword != undefined) {
+        let txtPassword = data.password;
+        let txtPasswordConfirm = data.passwordConfirm;
+        let txtError = [];
+        let validateEmail = ValidateInput("Email", data.email, "^[\\w]+@[a-z]+\\.[a-z]+$");
+        let validateName = ValidateInput("Name", data.name, "^[A-Za-z\\s]+$")
+        let validateTel = ValidateInput("Tel", data.tel, "^[0][0-9]{9}$")
+        let validatePassword = "";
+        let validatePasswordConfirm = "";
+        if (txtPassword !== "" && txtPassword !== undefined) {
             validatePassword = ValidateInput("Password", txtPassword, "^.*(?=.)(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$");
             validatePasswordConfirm = ValidatePasswordConfirm(txtPassword, txtPasswordConfirm);
         }
-        if (validateEmail != "") {
-            txtError.push(validateEmail)
-        }
-        if (validateName != "") {
-            txtError.push(validateName)
-        }
-        if (validateTel != "") {
-            txtError.push(validateTel)
-        }
-        if (validatePassword != "") {
-            txtError.push(validatePassword)
-        }
-        if (validatePasswordConfirm != "") {
-            txtError.push(validatePasswordConfirm)
-        }
-        if (txtError.length == 0) {
-            const data = {
-                userId: txtUserId,
-                email: txtEmail,
-                name: txtName,
-                tel: txtTel,
-                password: txtPassword,
+        validateEmail ? txtError.push(validateEmail) : txtError = [...txtError];
+        validateName ? txtError.push(validateName) : txtError = [...txtError];
+        validateTel ? txtError.push(validateTel) : txtError = [...txtError];
+        validatePassword ? txtError.push(validatePassword) : txtError = [...txtError];
+        validatePasswordConfirm ? txtError.push(validatePasswordConfirm) : txtError = [...txtError];
+        if (txtError.length === 0) {
+            const params = {
+                userId: data.userId,
+                email: data.email,
+                name: data.name,
+                tel: data.tel,
+                password: data.password,
             };
-            axios.put(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_EDIT_USER, data).then(response => {
-                if (response.data == 'exist') {
-                    txtError.push("Email is exist.")
-                    setErrors(txtError);
-                } else if (response.data) {
+            axios.put(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_EDIT_USER, params).then(response => {
+                if (response.data) {
                     setAlert("Success");
                 } else {
                     setAlert("Failure");
                 }
             }).catch(err => {
-                console.error(err);
-                txtError.push("Server is maintain.");
-                setErrors(txtError);
+                if (err.response) {
+                    txtError.push(err.response.data['detail']);
+                } else if (err.request) {
+                    txtError.push("Server is maintain.");
+                }
+                data.password = "";
+                data.passwordConfirm = "";
             });
-        } else {
-            setErrors(txtError);
-            data.password = '';
-            data.passwordConfirm = '';
         }
+        setErrors(txtError);
     }
 
     const setParams = (event) => {
@@ -116,7 +99,7 @@ export default function EditUser() {
     return (
         <div>
             <Header />
-            {alert != '' &&
+            {alert !== '' &&
                 <Alert message={alert} />
             }
             <div className="container-contact100" style={{ minHeight: "93vh" }}>

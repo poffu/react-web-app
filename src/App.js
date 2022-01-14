@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import Login from './Login'
 import ListUser from './ListUser'
 import AddUser from './AddUser'
@@ -16,7 +16,7 @@ export default class App extends Component {
                     <Route exact path="/add-user" component={AddUser} />
                     <Route exact path="/edit-user" component={EditUser} />
                 </Switch>
-            </BrowserRouter >
+            </BrowserRouter>
         );
     }
 }

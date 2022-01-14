@@ -1,159 +1,139 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import Header from './Header'
 import axios from 'axios';
 import { ValidateInput, ValidatePasswordConfirm } from './css/js/main'
 import Alert from './Alert'
 import { Redirect } from 'react-router-dom';
 
-export default class AddUser extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            email: "",
-            name: "",
-            tel: "",
-            password: "",
-            passwordConfirm: "",
-            error: [],
-            alert: "",
-        };
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.setParams = this.setParams.bind(this);
-    }
+export default function AddUser() {
+    const [data, setData] = useState({
+        email: '',
+        name: '',
+        tel: '',
+        password: '',
+        passwordConfirm: '',
+    });
+    const [alert, setAlert] = useState("");
+    const [error, setError] = useState([]);
 
-    setParams = (event) => {
-        this.setState({
-            [event.target.name]: event.target.value
-        });
-    }
+    useEffect(() => {
+    }, []);
 
-    handleSubmit = e => {
+    const handleSubmit = e => {
         e.preventDefault();
-
-        var txtEmail = this.state.email;
-        var txtName = this.state.name;
-        var txtTel = this.state.tel;
-        var txtPassword = this.state.password;
-        var txtPasswordConfirm = this.state.passwordConfirm;
-        var txtError = [];
-        var validateEmail = ValidateInput("Email", txtEmail, "^[\\w]+@[a-z]+\\.[a-z]+$");
-        var validateName = ValidateInput("Name", txtName, "^[A-Za-z\\s]+$")
-        var validateTel = ValidateInput("Tel", txtTel, "^[0][0-9]{9}$")
-        var validatePassword = ValidateInput("Password", txtPassword, "^.*(?=.)(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$");
-        var validatePasswordConfirm = ValidatePasswordConfirm(txtPassword, txtPasswordConfirm);
-        if (validateEmail.length > 0) {
-            txtError.push(validateEmail)
-        }
-        if (validateName.length > 0) {
-            txtError.push(validateName)
-        }
-        if (validateTel.length > 0) {
-            txtError.push(validateTel)
-        }
-        if (validatePassword.length > 0) {
-            txtError.push(validatePassword)
-        }
-        if (validatePasswordConfirm.length > 0) {
-            txtError.push(validatePasswordConfirm)
-        }
-        if (txtError.length == 0) {
-            const data = {
-                email: txtEmail,
-                name: txtName,
-                tel: txtTel,
-                password: txtPassword,
+        let txtError = [];
+        let validateEmail = ValidateInput("Email", data.email, "^[\\w]+@[a-z]+\\.[a-z]+$");
+        let validateName = ValidateInput("Name", data.name, "^[A-Za-z\\s]+$")
+        let validateTel = ValidateInput("Tel", data.tel, "^[0][0-9]{9}$")
+        let validatePassword = ValidateInput("Password", data.password, "^.*(?=.)(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$");
+        let validatePasswordConfirm = ValidatePasswordConfirm(data.password, data.passwordConfirm);
+        validateEmail ? txtError.push(validateEmail) : txtError = [...txtError];
+        validateName ? txtError.push(validateName) : txtError = [...txtError];
+        validateTel ? txtError.push(validateTel) : txtError = [...txtError];
+        validatePassword ? txtError.push(validatePassword) : txtError = [...txtError];
+        validatePasswordConfirm ? txtError.push(validatePasswordConfirm) : txtError = [...txtError];
+        if (txtError.length === 0) {
+            const params = {
+                email: data.email,
+                name: data.name,
+                tel: data.tel,
+                password: data.password,
             };
 
-            axios.post(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_ADD_USER, data).then(response => {
-                if (response.data == 'exist') {
-                    txtError.push("Email is exist.")
-                    this.setState({ error: txtError });
-                } else if (response.data) {
-                    this.setState({ alert: "Success" });
+            axios.post(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_ADD_USER, params).then(response => {
+                if (response.data) {
+                    setAlert("Success");
                 } else {
-                    this.setState({ alert: "Failure" });
+                    setAlert("Failure");
                 }
             }).catch(err => {
-                console.error(err);
-                txtError.push("Server is maintain.");
-                this.setState({ error: txtError });
+                if (err.response) {
+                    txtError.push(err.response.data['detail']);
+                } else if (err.request) {
+                    txtError.push("Server is maintain.");
+                }
+                data.password = "";
+                data.passwordConfirm = "";
             });
         }
-        this.setState({ error: txtError, password: '', passwordConfirm: '' });
+        setError(txtError);
     }
 
-    render() {
-        if (sessionStorage.getItem(process.env.REACT_APP_SESSION_LOGIN) == null) {
-            return <Redirect to={process.env.REACT_APP_URL_LOGIN} />;
-        }
-        const errors = this.state.error;
-        const alert = this.state.alert;
+    const setParams = (event) => {
+        event.persist();
+        setData((values) => ({
+            ...values,
+            [event.target.name]: event.target.value,
+        }));
+    }
 
-        return (
-            <div>
-                <Header />
-                {alert != '' &&
-                    <Alert message={alert} />
-                }
-                <div className="container-contact100" style={{ minHeight: "93vh" }}>
-                    <div className="wrap-contact100">
-                        <form className="contact100-form validate-form" onSubmit={this.handleSubmit}>
-                            <span className="contact100-form-title">
-                                Add User
-                            </span>
-                            {errors.length > 0 &&
-                                <div className="mb-4">
-                                    <span className="text-danger text-center font-weight-bold input100">
-                                        {errors.map((error, index) => <div key={index}>{error}</div>)}
+    if (sessionStorage.getItem(process.env.REACT_APP_SESSION_LOGIN) == null) {
+        return <Redirect to={process.env.REACT_APP_URL_LOGIN} />;
+    }
+
+    return (
+        <div>
+            <Header />
+            {alert !== '' &&
+                <Alert message={alert} />
+            }
+            <div className="container-contact100" style={{ minHeight: "93vh" }}>
+                <div className="wrap-contact100">
+                    <form className="contact100-form validate-form" onSubmit={handleSubmit}>
+                        <span className="contact100-form-title">
+                            Add User
+                        </span>
+                        {error.length > 0 &&
+                            <div className="mb-4">
+                                <span className="text-danger text-center font-weight-bold input100">
+                                    {error.map((error, index) => <div key={index}>{error}</div>)}
+                                </span>
+                            </div>
+                        }
+                        <div className="wrap-input100 validate-input">
+                            <span className="label-input100">Email</span>
+                            <input className="input100" type="text" name="email" placeholder="Enter your email" value={data.email} onChange={setParams} />
+                            <span className="focus-input100"></span>
+                        </div>
+
+                        <div className="wrap-input100 validate-input">
+                            <span className="label-input100">Name</span>
+                            <input className="input100" type="text" name="name" placeholder="Enter your name" value={data.name} onChange={setParams} />
+                            <span className="focus-input100"></span>
+                        </div>
+
+                        <div className="wrap-input100 validate-input">
+                            <span className="label-input100">Tel</span>
+                            <input className="input100" type="text" name="tel" placeholder="Enter your tel" value={data.tel} onChange={setParams} />
+                            <span className="focus-input100"></span>
+                        </div>
+
+                        <div className="wrap-input100 validate-input">
+                            <span className="label-input100">Password</span>
+                            <input className="input100" type="password" name="password" placeholder="Enter your password" value={data.password} onChange={setParams} />
+                            <span className="focus-input100"></span>
+                        </div>
+
+                        <div className="wrap-input100 validate-input">
+                            <span className="label-input100">Password Confirm</span>
+                            <input className="input100" type="password" name="passwordConfirm" placeholder="Enter your password confirm" value={data.passwordConfirm} onChange={setParams} />
+                            <span className="focus-input100"></span>
+                        </div>
+
+                        <div className="container-contact100-form-btn">
+                            <div className="wrap-contact100-form-btn">
+                                <div className="contact100-form-bgbtn"></div>
+                                <button className="contact100-form-btn">
+                                    <span>
+                                        Submit
+                                        <i className="fa fa-long-arrow-right m-l-7" aria-hidden="true"></i>
                                     </span>
-                                </div>
-                            }
-
-                            <div className="wrap-input100 validate-input">
-                                <span className="label-input100">Email</span>
-                                <input className="input100" type="text" name="email" placeholder="Enter your email" value={this.state.email} onChange={this.setParams} />
-                                <span className="focus-input100"></span>
+                                </button>
                             </div>
-
-                            <div className="wrap-input100 validate-input">
-                                <span className="label-input100">Name</span>
-                                <input className="input100" type="text" name="name" placeholder="Enter your name" value={this.state.name} onChange={this.setParams} />
-                                <span className="focus-input100"></span>
-                            </div>
-
-                            <div className="wrap-input100 validate-input">
-                                <span className="label-input100">Tel</span>
-                                <input className="input100" type="text" name="tel" placeholder="Enter your tel" value={this.state.tel} onChange={this.setParams} />
-                                <span className="focus-input100"></span>
-                            </div>
-
-                            <div className="wrap-input100 validate-input">
-                                <span className="label-input100">Password</span>
-                                <input className="input100" type="password" name="password" placeholder="Enter your password" value={this.state.password} onChange={this.setParams} />
-                                <span className="focus-input100"></span>
-                            </div>
-
-                            <div className="wrap-input100 validate-input">
-                                <span className="label-input100">Password Confirm</span>
-                                <input className="input100" type="password" name="passwordConfirm" placeholder="Enter your password confirm" value={this.state.passwordConfirm} onChange={this.setParams} />
-                                <span className="focus-input100"></span>
-                            </div>
-
-                            <div className="container-contact100-form-btn">
-                                <div className="wrap-contact100-form-btn">
-                                    <div className="contact100-form-bgbtn"></div>
-                                    <button className="contact100-form-btn">
-                                        <span>
-                                            Submit
-                                            <i className="fa fa-long-arrow-right m-l-7" aria-hidden="true"></i>
-                                        </span>
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </div>
-            </div >
-        );
-    }
+            </div>
+        </div >
+    );
 }

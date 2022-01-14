@@ -5,6 +5,7 @@ import Header from './Header';
 import Alert from './Alert'
 import { Link, Redirect } from "react-router-dom";
 
+
 export default function ListUser() {
     const [users, setUsers] = useState([]);
     const [name, setName] = useState("");
@@ -13,12 +14,12 @@ export default function ListUser() {
     const [currentPage, setCurrentPage] = useState(1);
     const [listPage, setListPage] = useState([]);
 
-    if (sessionStorage.getItem(process.env.REACT_APP_SESSION_LOGIN) == null) {
-        return <Redirect to={process.env.REACT_APP_URL_LOGIN} />;
-    }
+    useEffect(() => {
+        getUserServer();
+    }, []);
 
-    const getUserServer = async () => {
-        await axios.get(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LIST_USER, {
+    const getUserServer = () => {
+        axios.get(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LIST_USER, {
             params: {
                 name,
             }
@@ -30,10 +31,6 @@ export default function ListUser() {
         });
     }
 
-    useEffect(async () => {
-        getUserServer();
-    }, []);
-
     const handleSubmit = (evt) => {
         evt.preventDefault();
         getUserServer();
@@ -44,9 +41,9 @@ export default function ListUser() {
         setConfirm("");
     }
 
-    const handleOK = async e => {
+    const handleOK = e => {
         e.preventDefault();
-        await axios.delete(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_DELETE_USER, {
+        axios.delete(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_DELETE_USER, {
             params: {
                 userId: sessionStorage.getItem(process.env.REACT_APP_SESSION_DELETE),
             }
@@ -66,7 +63,7 @@ export default function ListUser() {
 
     const getListPage = (userList) => {
         let listPage = [];
-        if (userList != null) {
+        if (userList !== null) {
             for (let i = 1; i <= Math.ceil(userList.length / 8); i++) {
                 listPage.push(i);
             }
@@ -74,10 +71,14 @@ export default function ListUser() {
         return listPage;
     }
 
+    if (sessionStorage.getItem(process.env.REACT_APP_SESSION_LOGIN) === null) {
+        return <Redirect to={process.env.REACT_APP_URL_LOGIN} />;
+    }
+
     return (
         <div>
             <Header />
-            {confirm != "" &&
+            {confirm !== "" &&
                 <div className="CustomConfirmParent" id="alertConfirm">
                     <div className="CustomConfirmBody">
                         <div className="ConfirmTitle">Notification</div>
@@ -91,7 +92,7 @@ export default function ListUser() {
                     </div>
                 </div>
             }
-            {alert != "" &&
+            {alert !== "" &&
                 <Alert message={alert} />
             }
             <div className="container-contact100" style={{ minHeight: "92vh" }}>
@@ -133,7 +134,7 @@ export default function ListUser() {
                         </table>
                     </div>
                     <div className="mt-3">
-                        <nav aria-label="Page navigation example">
+                        <nav>
                             <ul className="pagination">
                                 {currentPage > 1 &&
                                     <li className="page-item">

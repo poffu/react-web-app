@@ -4,23 +4,25 @@ import { Redirect } from 'react-router-dom';
 import { ValidateInput } from './css/js/main'
 
 export default function Login() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [data, setData] = useState({
+        email: '',
+        password: '',
+    });
     const [error, setError] = useState([]);
 
-    const handleSubmit = async e => {
+    const handleSubmit = e => {
         e.preventDefault();
         let txtError = [];
-        const validateEmail = ValidateInput("Email", email, "^[\\w]+@[a-z]+\\.[a-z]+$");
-        const validatePassword = ValidateInput("Password", password);
+        let validateEmail = ValidateInput("Email", data.email, "^[\\w]+@[a-z]+\\.[a-z]+$");
+        let validatePassword = ValidateInput("Password", data.password);
         validateEmail ? txtError.push(validateEmail) : txtError = [...txtError];
         validatePassword ? txtError.push(validatePassword) : txtError = [...txtError];
-        if (txtError.length == 0) {
-            const data = {
-                email,
-                password,
+        if (txtError.length === 0) {
+            const params = {
+                email: data.email,
+                password: data.password,
             };
-            await axios.post(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LOGIN, data).then(response => {
+            axios.post(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LOGIN, params).then(response => {
                 if (response.data !== null) {
                     sessionStorage.setItem(process.env.REACT_APP_SESSION_LOGIN, JSON.stringify(response.data));
                 }
@@ -30,15 +32,23 @@ export default function Login() {
                 } else if (err.request) {
                     txtError.push("Server is maintain.");
                 }
-                setPassword("");
+                data.password = "";
             });
         } else {
-            setPassword("");
+            data.password = "";
         }
         setError(txtError);
     }
 
-    if (sessionStorage.getItem(process.env.REACT_APP_SESSION_LOGIN) != null) {
+    const setParams = (event) => {
+        event.persist();
+        setData((values) => ({
+            ...values,
+            [event.target.name]: event.target.value,
+        }));
+    }
+
+    if (sessionStorage.getItem(process.env.REACT_APP_SESSION_LOGIN) !== null) {
         return <Redirect to={process.env.REACT_APP_URL_LIST_USER} />;
     }
 
@@ -58,13 +68,13 @@ export default function Login() {
                     }
                     <div className="wrap-input100 validate-input">
                         <span className="label-input100">Email</span>
-                        <input className="input100" type="text" name="email" placeholder="Enter your email" value={email} onChange={e => setEmail(e.target.value)} />
+                        <input className="input100" type="text" name="email" placeholder="Enter your email" value={data.email} onChange={setParams} />
                         <span className="focus-input100"></span>
                     </div>
 
                     <div className="wrap-input100 validate-input">
                         <span className="label-input100">Password</span>
-                        <input className="input100" type="password" name="password" placeholder="Enter your password" value={password} onChange={e => setPassword(e.target.value)} />
+                        <input className="input100" type="password" name="password" placeholder="Enter your password" value={data.password} onChange={setParams} />
                         <span className="focus-input100"></span>
                     </div>
                     <div className="container-contact100-form-btn">
