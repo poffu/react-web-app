@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Header from './Header'
 import axios from 'axios';
 import { ValidateInput, ValidatePasswordConfirm } from './css/js/main'
@@ -16,10 +16,7 @@ export default function AddUser() {
     const [alert, setAlert] = useState("");
     const [error, setError] = useState([]);
 
-    useEffect(() => {
-    }, []);
-
-    const handleSubmit = e => {
+    const handleSubmit = async e => {
         e.preventDefault();
         let txtError = [];
         let validateEmail = ValidateInput("Email", data.email, "^[\\w]+@[a-z]+\\.[a-z]+$");
@@ -33,14 +30,14 @@ export default function AddUser() {
         validatePassword ? txtError.push(validatePassword) : txtError = [...txtError];
         validatePasswordConfirm ? txtError.push(validatePasswordConfirm) : txtError = [...txtError];
         if (txtError.length === 0) {
-            const params = {
+            let params = {
                 email: data.email,
                 name: data.name,
                 tel: data.tel,
                 password: data.password,
             };
 
-            axios.post(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_ADD_USER, params).then(response => {
+            await axios.post(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_ADD_USER, params).then(response => {
                 if (response.data) {
                     setAlert("Success");
                 } else {
@@ -51,11 +48,12 @@ export default function AddUser() {
                     txtError.push(err.response.data['detail']);
                 } else if (err.request) {
                     txtError.push("Server is maintain.");
+                    sessionStorage.removeItem(process.env.REACT_APP_SESSION_LOGIN);
                 }
-                data.password = "";
-                data.passwordConfirm = "";
             });
         }
+        data.password = "";
+        data.passwordConfirm = "";
         setError(txtError);
     }
 

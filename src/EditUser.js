@@ -24,25 +24,28 @@ export default function EditUser() {
             setRedirect(true);
         }
         else {
-            axios.get(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_GET_USER, {
-                params: {
-                    userId: userId,
-                }
-            }).then(response => {
-                setData(response.data);
-                sessionStorage.removeItem(process.env.REACT_APP_SESSION_EDIT);
-            }).catch(err => {
-                console.error(err);
-                setErrors("Server is maintain.");
-            });
+            getData(userId);
         }
     }, []);
+
+    const getData = async data => {
+        await axios.get(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_GET_USER, {
+            params: {
+                userId: data,
+            }
+        }).then(response => {
+            setData(response.data);
+            sessionStorage.removeItem(process.env.REACT_APP_SESSION_EDIT);
+        }).catch(err => {
+            setErrors("Server is maintain.");
+        });
+    }
 
     if (redirect) {
         return <Redirect to={process.env.REACT_APP_URL_LIST_USER} />;
     }
 
-    const handleSubmit = (evt) => {
+    const handleSubmit = async evt => {
         evt.preventDefault();
         let txtPassword = data.password;
         let txtPasswordConfirm = data.passwordConfirm;
@@ -62,14 +65,14 @@ export default function EditUser() {
         validatePassword ? txtError.push(validatePassword) : txtError = [...txtError];
         validatePasswordConfirm ? txtError.push(validatePasswordConfirm) : txtError = [...txtError];
         if (txtError.length === 0) {
-            const params = {
+            let params = {
                 userId: data.userId,
                 email: data.email,
                 name: data.name,
                 tel: data.tel,
                 password: data.password,
             };
-            axios.put(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_EDIT_USER, params).then(response => {
+            await axios.put(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_EDIT_USER, params).then(response => {
                 if (response.data) {
                     setAlert("Success");
                 } else {
@@ -80,6 +83,7 @@ export default function EditUser() {
                     txtError.push(err.response.data['detail']);
                 } else if (err.request) {
                     txtError.push("Server is maintain.");
+                    sessionStorage.removeItem(process.env.REACT_APP_SESSION_LOGIN);
                 }
                 data.password = "";
                 data.passwordConfirm = "";

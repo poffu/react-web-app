@@ -10,7 +10,7 @@ export default function Login() {
     });
     const [error, setError] = useState([]);
 
-    const handleSubmit = e => {
+    const handleSubmit = async e => {
         e.preventDefault();
         let txtError = [];
         let validateEmail = ValidateInput("Email", data.email, "^[\\w]+@[a-z]+\\.[a-z]+$");
@@ -18,11 +18,11 @@ export default function Login() {
         validateEmail ? txtError.push(validateEmail) : txtError = [...txtError];
         validatePassword ? txtError.push(validatePassword) : txtError = [...txtError];
         if (txtError.length === 0) {
-            const params = {
+            let params = {
                 email: data.email,
                 password: data.password,
             };
-            axios.post(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LOGIN, params).then(response => {
+            await axios.post(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LOGIN, params).then(response => {
                 if (response.data !== null) {
                     sessionStorage.setItem(process.env.REACT_APP_SESSION_LOGIN, JSON.stringify(response.data));
                 }
@@ -32,11 +32,9 @@ export default function Login() {
                 } else if (err.request) {
                     txtError.push("Server is maintain.");
                 }
-                data.password = "";
             });
-        } else {
-            data.password = "";
         }
+        data.password = "";
         setError(txtError);
     }
 
