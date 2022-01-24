@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import axios from 'axios';
 import { Redirect } from 'react-router-dom';
-import { ValidateInput } from './css/js/main'
+import { ValidateInput } from './css/js/main';
+import { useDispatch } from 'react-redux';
+import { login } from "./redux/auth";
 
 export default function Login() {
     const [data, setData] = useState({
@@ -9,6 +11,11 @@ export default function Login() {
         password: '',
     });
     const [error, setError] = useState([]);
+    const dispatch = useDispatch();
+
+    // if (sessionStorage.getItem(process.env.REACT_APP_SESSION_LOGIN) !== null) {
+    //     return <Redirect to={process.env.REACT_APP_URL_LIST_USER} />;
+    // }
 
     const handleSubmit = async e => {
         e.preventDefault();
@@ -25,6 +32,7 @@ export default function Login() {
             await axios.post(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LOGIN, params).then(response => {
                 if (response.data !== null) {
                     sessionStorage.setItem(process.env.REACT_APP_SESSION_LOGIN, JSON.stringify(response.data));
+                    dispatch(login(response.data));
                 }
             }).catch(err => {
                 if (err.response) {
@@ -44,10 +52,6 @@ export default function Login() {
             ...values,
             [event.target.name]: event.target.value,
         }));
-    }
-
-    if (sessionStorage.getItem(process.env.REACT_APP_SESSION_LOGIN) !== null) {
-        return <Redirect to={process.env.REACT_APP_URL_LIST_USER} />;
     }
 
     return (

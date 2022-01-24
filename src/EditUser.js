@@ -14,35 +14,38 @@ export default function EditUser() {
         password: '',
         passwordConfirm: '',
     });
-    const [redirect, setRedirect] = useState(false);
+    const [redirect, setRedirect] = useState("");
     const [alert, setAlert] = useState("");
     const [errors, setErrors] = useState([]);
 
     useEffect(() => {
         var userId = sessionStorage.getItem(process.env.REACT_APP_SESSION_EDIT);
-        if (userId === null) {
-            setRedirect(true);
-        }
-        else {
+        if (sessionStorage.getItem(process.env.REACT_APP_SESSION_LOGIN) === null) {
+            setRedirect("login");
+        } else if (userId === null) {
+            setRedirect("list-user");
+        } else {
             getData(userId);
         }
     }, []);
 
-    const getData = async data => {
+    if (redirect === "login") {
+        return <Redirect to={process.env.REACT_APP_URL_LOGIN} />;
+    } else if (redirect === "list-user") {
+        return <Redirect to={process.env.REACT_APP_URL_LIST_USER} />;
+    }
+
+    const getData = async userId => {
         await axios.get(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_GET_USER, {
             params: {
-                userId: data,
+                userId,
             }
         }).then(response => {
             setData(response.data);
             sessionStorage.removeItem(process.env.REACT_APP_SESSION_EDIT);
-        }).catch(err => {
-            setErrors("Server is maintain.");
+        }).catch(() => {
+            sessionStorage.removeItem(process.env.REACT_APP_SESSION_LOGIN);
         });
-    }
-
-    if (redirect) {
-        return <Redirect to={process.env.REACT_APP_URL_LIST_USER} />;
     }
 
     const handleSubmit = async evt => {

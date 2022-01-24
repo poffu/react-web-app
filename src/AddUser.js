@@ -16,6 +16,10 @@ export default function AddUser() {
     const [alert, setAlert] = useState("");
     const [error, setError] = useState([]);
 
+    if (sessionStorage.getItem(process.env.REACT_APP_SESSION_LOGIN) == null) {
+        return <Redirect to={process.env.REACT_APP_URL_LOGIN} />;
+    }
+
     const handleSubmit = async e => {
         e.preventDefault();
         let txtError = [];
@@ -63,10 +67,6 @@ export default function AddUser() {
             ...values,
             [event.target.name]: event.target.value,
         }));
-    }
-
-    if (sessionStorage.getItem(process.env.REACT_APP_SESSION_LOGIN) == null) {
-        return <Redirect to={process.env.REACT_APP_URL_LOGIN} />;
     }
 
     return (

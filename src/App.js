@@ -1,22 +1,17 @@
-import React, { Component } from "react";
+import React from "react";
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
-import Login from './Login'
-import ListUser from './ListUser'
-import AddUser from './AddUser'
-import EditUser from './EditUser'
+import Login from './Login';
+import ListUser from './ListUser';
+import AddUser from './AddUser';
+import EditUser from './EditUser';
+import { useSelector } from 'react-redux';
+import { getToken } from "./redux/auth";
 
-export default class App extends Component {
-    render() {
-        return (
-            <BrowserRouter>
-                <Switch>
-                    <Route exact path="/" component={Login} />
-                    <Route exact path="/login" component={Login} />
-                    <Route exact path="/list-user" component={ListUser} />
-                    <Route exact path="/add-user" component={AddUser} />
-                    <Route exact path="/edit-user" component={EditUser} />
-                </Switch>
-            </BrowserRouter>
-        );
-    }
+export default function App() {
+    let token = useSelector(getToken);
+    return (
+        <div className="App">
+            {(token === null) ? <Login /> : <ListUser />}
+        </div>
+    );
 }

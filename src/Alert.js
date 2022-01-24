@@ -11,7 +11,7 @@ export default function Alert(props) {
                     <span id="messageAlert">{props.message}</span>
                 </div>
                 <div className="ConfirmFooter px-3 pt-4 text-center">
-                    <Link to="/" className="ConfirmButton btn btn-primary">OK</Link>
+                    <Link to="/list-user" className="ConfirmButton btn btn-primary">OK</Link>
                 </div>
             </div>
         </div>

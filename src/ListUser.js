@@ -12,12 +12,32 @@ export default function ListUser() {
 	const [alert, setAlert] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
 	const [listPage, setListPage] = useState([]);
+	const [isLogin, setIsLogin] = useState(false);
 
 	useEffect(() => {
-		getUserServer();
+		// if (sessionStorage.getItem(process.env.REACT_APP_SESSION_LOGIN) === null) {
+		// 	setIsLogin(true);
+		// } else {
+			let getUserServer = async () => {
+				await axios.get(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LIST_USER).then(response => {
+					let userList = response.data;
+					setUsers([...userList]);
+					setCurrentPage(1);
+					setListPage([...getListPage(userList)]);
+				}).catch(() => {
+					sessionStorage.removeItem(process.env.REACT_APP_SESSION_LOGIN);
+				});
+			}
+			getUserServer();
+		// }
 	}, []);
 
-	const getUserServer = async () => {
+	// if (isLogin) {
+	// 	return <Redirect to={process.env.REACT_APP_URL_LOGIN} />;
+	// }
+
+	const handleSubmit = async e => {
+		e.preventDefault();
 		await axios.get(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LIST_USER, {
 			params: {
 				name,
@@ -30,11 +50,6 @@ export default function ListUser() {
 		}).catch(() => {
 			sessionStorage.removeItem(process.env.REACT_APP_SESSION_LOGIN);
 		});
-	}
-
-	const handleSubmit = (e) => {
-		e.preventDefault();
-		getUserServer();
 	}
 
 	const handleCancel = () => {
@@ -70,10 +85,6 @@ export default function ListUser() {
 			}
 		}
 		return listPage;
-	}
-
-	if (sessionStorage.getItem(process.env.REACT_APP_SESSION_LOGIN) === null) {
-		return <Redirect to={process.env.REACT_APP_URL_LOGIN} />;
 	}
 
 	return (
@@ -121,7 +132,7 @@ export default function ListUser() {
 										<td style={{ wordBreak: "break-all" }}>{user.email}</td>
 										<td style={{ wordBreak: "break-all" }}>{user.tel}</td>
 										<td className="d-flex justify-content-around border-0">
-											<Link to="/edit-user" className="btn btn-success btn-sm rounded-0" type="button" onClick={() => sessionStorage.setItem(process.env.REACT_APP_SESSION_EDIT, user.userId)}><i className="fa fa-edit" /></Link>
+											{/* <Link to="/edit-user" className="btn btn-success btn-sm rounded-0" type="button" onClick={() => sessionStorage.setItem(process.env.REACT_APP_SESSION_EDIT, user.userId)}><i className="fa fa-edit" /></Link> */}
 											<button className="btn btn-danger btn-sm rounded-0" type="button" onClick={
 												() => {
 													setConfirm("Do you want to delete this?");
