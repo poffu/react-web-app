@@ -17,7 +17,7 @@ export default function AddUser() {
     const [error, setError] = useState([]);
 
     if (sessionStorage.getItem(process.env.REACT_APP_SESSION_LOGIN) == null) {
-        return <Redirect to={process.env.REACT_APP_URL_LOGIN} />;
+        return <Redirect to={process.env.REACT_APP_URL_API} />;
     }
 
     const handleSubmit = async e => {

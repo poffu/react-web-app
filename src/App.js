@@ -10,8 +10,15 @@ import { getToken } from "./redux/auth";
 export default function App() {
     let token = useSelector(getToken);
     return (
-        <div className="App">
-            {(token === null) ? <Login /> : <ListUser />}
-        </div>
+        < BrowserRouter >
+            <Switch>
+                <Route exact path="/list-user" component={ListUser} />
+                <Route exact path="/add-user" component={AddUser} />
+                <Route exact path="/edit-user" component={EditUser} />
+            </Switch>
+            <div className="App">
+                {(token === null) ? <Login /> : <ListUser />}
+            </div>
+        </BrowserRouter>
     );
 }
