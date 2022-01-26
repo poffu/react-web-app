@@ -132,7 +132,7 @@ export default function ListUser() {
 										<td style={{ wordBreak: "break-all" }}>{user.email}</td>
 										<td style={{ wordBreak: "break-all" }}>{user.tel}</td>
 										<td className="d-flex justify-content-around border-0">
-											<Link to="/edit-user" className="btn btn-success btn-sm rounded-0" type="button" onClick={() => sessionStorage.setItem(process.env.REACT_APP_SESSION_EDIT, user.userId)}><i className="fa fa-edit" /></Link>
+											<Link to={process.env.REACT_APP_URL_EDIT_USER} className="btn btn-success btn-sm rounded-0" type="button" onClick={() => sessionStorage.setItem(process.env.REACT_APP_SESSION_EDIT, user.userId)}><i className="fa fa-edit" /></Link>
 											<button className="btn btn-danger btn-sm rounded-0" type="button" onClick={
 												() => {
 													setConfirm("Do you want to delete this?");

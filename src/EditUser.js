@@ -7,31 +7,26 @@ import { Redirect } from 'react-router-dom';
 
 export default function EditUser() {
     const [data, setData] = useState({
-        userId: 0,
         email: '',
         name: '',
         tel: '',
         password: '',
         passwordConfirm: '',
     });
-    const [redirect, setRedirect] = useState("");
+    const [isRedirect, setIsRedirect] = useState(false);
     const [alert, setAlert] = useState("");
     const [errors, setErrors] = useState([]);
 
     useEffect(() => {
         var userId = sessionStorage.getItem(process.env.REACT_APP_SESSION_EDIT);
-        if (sessionStorage.getItem(process.env.REACT_APP_SESSION_LOGIN) === null) {
-            setRedirect("login");
-        } else if (userId === null) {
-            setRedirect("list-user");
+        if (userId === null) {
+            setIsRedirect(true);
         } else {
             getData(userId);
         }
     }, []);
 
-    if (redirect === "login") {
-        return <Redirect to={process.env.REACT_APP_URL_LOGIN} />;
-    } else if (redirect === "list-user") {
+    if (isRedirect) {
         return <Redirect to={process.env.REACT_APP_URL_LIST_USER} />;
     }
 
@@ -44,7 +39,7 @@ export default function EditUser() {
             setData(response.data);
             sessionStorage.removeItem(process.env.REACT_APP_SESSION_EDIT);
         }).catch(() => {
-            sessionStorage.removeItem(process.env.REACT_APP_SESSION_LOGIN);
+            localStorage.removeItem('persist:root');
         });
     }
 
@@ -90,9 +85,11 @@ export default function EditUser() {
                 }
                 data.password = "";
                 data.passwordConfirm = "";
+                setErrors(txtError);
             });
+        } else {
+            setErrors(txtError);
         }
-        setErrors(txtError);
     }
 
     const setParams = (event) => {

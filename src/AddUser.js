@@ -3,7 +3,6 @@ import Header from './Header'
 import axios from 'axios';
 import { ValidateInput, ValidatePasswordConfirm } from './css/js/main'
 import Alert from './Alert'
-import { Redirect } from 'react-router-dom';
 
 export default function AddUser() {
     const [data, setData] = useState({
@@ -15,10 +14,6 @@ export default function AddUser() {
     });
     const [alert, setAlert] = useState("");
     const [error, setError] = useState([]);
-
-    if (sessionStorage.getItem(process.env.REACT_APP_SESSION_LOGIN) == null) {
-        return <Redirect to={process.env.REACT_APP_URL_API} />;
-    }
 
     const handleSubmit = async e => {
         e.preventDefault();
@@ -52,13 +47,15 @@ export default function AddUser() {
                     txtError.push(err.response.data['detail']);
                 } else if (err.request) {
                     txtError.push("Server is maintain.");
-                    sessionStorage.removeItem(process.env.REACT_APP_SESSION_LOGIN);
+                    localStorage.removeItem('persist:root');
                 }
+                data.password = "";
+                data.passwordConfirm = "";
+                setError(txtError);
             });
+        } else {
+            setError(txtError);
         }
-        data.password = "";
-        data.passwordConfirm = "";
-        setError(txtError);
     }
 
     const setParams = (event) => {

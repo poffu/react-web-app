@@ -16,13 +16,13 @@ export default function Header() {
                         <div className="collapse navbar-collapse" id="navbarSupportedContent">
                             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                                 <li className="nav-item fw-bold">
-                                    <Link to="/list-user" className="nav-link text-black">Home</Link>
+                                    <Link to={process.env.REACT_APP_URL_LIST_USER} className="nav-link text-black">Home</Link>
                                 </li>
                                 <li className="nav-item fw-bold">
-                                    <Link to="/add-user" className="nav-link text-black">Add User</Link>
+                                    <Link to={process.env.REACT_APP_URL_ADD_USER} className="nav-link text-black">Add User</Link>
                                 </li>
                                 <li className="nav-item fw-bold">
-                                    <Link to="/" className="nav-link text-black" onClick={() => localStorage.removeItem('persist:root')}>Logout</Link>
+                                    <Link to={process.env.REACT_APP_URL_ROOT} className="nav-link text-black" onClick={() => localStorage.removeItem('persist:root')}>Logout</Link>
                                 </li>
                             </ul>
                         </div>

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { ValidateInput } from './css/js/main';
 import { useDispatch } from 'react-redux';
 import { login } from "./redux/auth";
+import { Redirect } from 'react-router-dom';
 
 export default function Login() {
     const [data, setData] = useState({
@@ -11,6 +12,7 @@ export default function Login() {
     });
     const [error, setError] = useState([]);
     const dispatch = useDispatch();
+    const [isLogin, setIsLogin] = useState(false);
 
     const handleSubmit = async e => {
         e.preventDefault();
@@ -27,6 +29,7 @@ export default function Login() {
             await axios.post(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LOGIN, params).then(response => {
                 if (response.data !== null) {
                     dispatch(login(response.data));
+                    setIsLogin(true);
                 }
             }).catch(err => {
                 if (err.response) {
@@ -34,10 +37,12 @@ export default function Login() {
                 } else if (err.request) {
                     txtError.push("Server is maintain.");
                 }
+                setError(txtError);
             });
+        } else {
+            setError(txtError);
         }
         data.password = "";
-        setError(txtError);
     }
 
     const setParams = (event) => {
@@ -49,42 +54,45 @@ export default function Login() {
     }
 
     return (
-        <div className="container-contact100">
-            <div className="wrap-contact100">
-                <form className="contact100-form validate-form" onSubmit={handleSubmit}>
-                    <span className="contact100-form-title">
-                        Login
-                    </span>
-                    {error.length > 0 &&
-                        <div className="mb-4">
-                            <span className="text-danger text-center font-weight-bold input100">
-                                {error.map((err, id) => <div key={id}>{err}</div>)}
-                            </span>
-                        </div>
-                    }
-                    <div className="wrap-input100 validate-input">
-                        <span className="label-input100">Email</span>
-                        <input className="input100" type="text" name="email" placeholder="Enter your email" value={data.email} onChange={setParams} />
-                        <span className="focus-input100"></span>
-                    </div>
-
-                    <div className="wrap-input100 validate-input">
-                        <span className="label-input100">Password</span>
-                        <input className="input100" type="password" name="password" placeholder="Enter your password" value={data.password} onChange={setParams} />
-                        <span className="focus-input100"></span>
-                    </div>
-                    <div className="container-contact100-form-btn">
-                        <div className="wrap-contact100-form-btn">
-                            <div className="contact100-form-bgbtn"></div>
-                            <button className="contact100-form-btn">
-                                <span>
-                                    Submit
-                                    <i className="fa fa-long-arrow-right m-l-7" aria-hidden="true"></i>
+        <div>
+            {isLogin && <Redirect to={process.env.REACT_APP_URL_LIST_USER} />}
+            <div className="container-contact100">
+                <div className="wrap-contact100">
+                    <form className="contact100-form validate-form" onSubmit={handleSubmit}>
+                        <span className="contact100-form-title">
+                            Login
+                        </span>
+                        {error.length > 0 &&
+                            <div className="mb-4">
+                                <span className="text-danger text-center font-weight-bold input100">
+                                    {error.map((err, id) => <div key={id}>{err}</div>)}
                                 </span>
-                            </button>
+                            </div>
+                        }
+                        <div className="wrap-input100 validate-input">
+                            <span className="label-input100">Email</span>
+                            <input className="input100" type="text" name="email" placeholder="Enter your email" value={data.email} onChange={setParams} />
+                            <span className="focus-input100"></span>
                         </div>
-                    </div>
-                </form>
+
+                        <div className="wrap-input100 validate-input">
+                            <span className="label-input100">Password</span>
+                            <input className="input100" type="password" name="password" placeholder="Enter your password" value={data.password} onChange={setParams} />
+                            <span className="focus-input100"></span>
+                        </div>
+                        <div className="container-contact100-form-btn">
+                            <div className="wrap-contact100-form-btn">
+                                <div className="contact100-form-bgbtn"></div>
+                                <button className="contact100-form-btn">
+                                    <span>
+                                        Submit
+                                        <i className="fa fa-long-arrow-right m-l-7" aria-hidden="true"></i>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );
