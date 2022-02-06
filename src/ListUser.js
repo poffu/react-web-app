@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import './css/css/list-user.css';
 import Header from './Header';
-import Alert from './Alert'
+import Alert from './Alert';
 import { Link } from "react-router-dom";
 import { useSelector } from 'react-redux';
 import { getToken } from "./redux/auth";
@@ -14,10 +14,10 @@ export default function ListUser() {
 	const [alert, setAlert] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
 	const [listPage, setListPage] = useState([]);
-	let token = useSelector(getToken);
+	const token = useSelector(getToken);
 
 	useEffect(() => {
-		let getUserServer = async () => {
+		const getListUserServer = async () => {
 			await axios.get(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LIST_USER, {
 				headers: {
 					Authorization: 'Bearer ' + token,
@@ -28,27 +28,34 @@ export default function ListUser() {
 				setUsers([...userList]);
 				setCurrentPage(1);
 				setListPage([...getListPage(userList)]);
-			}).catch((err) => {
-				localStorage.removeItem('persist:root');
-				console.log(err.response.data);
+			}).catch(() => {
+				localStorage.clear();
+				setAlert("Server is maintain");
 			});
 		}
-		getUserServer();
+		if (token !== undefined && token !== null) {
+			getListUserServer();
+		}
 	}, []);
 
 	const handleSubmit = async e => {
 		e.preventDefault();
+		let params = {
+			name: name,
+		};
 		await axios.get(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LIST_USER, {
-			params: {
-				name,
-			}
-		}).then(response => {
+			headers: {
+				'content-Type': 'application/json',
+				Authorization: 'Bearer ' + token,
+			},
+		}, { params: params }).then(response => {
 			let userList = response.data;
 			setUsers([...userList]);
 			setCurrentPage(1);
 			setListPage([...getListPage(userList)]);
 		}).catch(() => {
-			localStorage.removeItem('persist:root');
+			localStorage.clear();
+			setAlert("Server is maintain");
 		});
 	}
 
@@ -59,11 +66,14 @@ export default function ListUser() {
 
 	const handleOK = async e => {
 		e.preventDefault();
+		let userId = sessionStorage.getItem(process.env.REACT_APP_SESSION_DELETE);
+		sessionStorage.removeItem(process.env.REACT_APP_SESSION_DELETE);
 		await axios.delete(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_DELETE_USER, {
-			params: {
-				userId: sessionStorage.getItem(process.env.REACT_APP_SESSION_DELETE),
-			}
-		}).then(response => {
+			headers: {
+				Authorization: 'Bearer ' + token,
+				'content-Type': 'application/json'
+			},
+		}, { params: { userId: userId } }).then(response => {
 			if (response.data) {
 				setAlert("Success");
 			}
@@ -71,9 +81,9 @@ export default function ListUser() {
 				setAlert("Failure");
 			}
 		}).catch(() => {
-			localStorage.removeItem('persist:root');
+			localStorage.clear();
+			setAlert("Server is maintain");
 		});
-		sessionStorage.removeItem(process.env.REACT_APP_SESSION_DELETE);
 		setConfirm("");
 	}
 

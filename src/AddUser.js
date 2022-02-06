@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import Header from './Header'
+import Header from './Header';
 import axios from 'axios';
-import { ValidateInput, ValidatePasswordConfirm } from './css/js/main'
-import Alert from './Alert'
+import { ValidateInput, ValidatePasswordConfirm } from './css/js/main';
+import Alert from './Alert';
+import { useSelector } from 'react-redux';
+import { getToken } from "./redux/auth";
 
 export default function AddUser() {
     const [data, setData] = useState({
@@ -14,6 +16,7 @@ export default function AddUser() {
     });
     const [alert, setAlert] = useState("");
     const [error, setError] = useState([]);
+    const token = useSelector(getToken);
 
     const handleSubmit = async e => {
         e.preventDefault();
@@ -35,8 +38,12 @@ export default function AddUser() {
                 tel: data.tel,
                 password: data.password,
             };
-
-            await axios.post(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_ADD_USER, params).then(response => {
+            await axios.post(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_ADD_USER, {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                }
+            }, { params: params }).then(response => {
                 if (response.data) {
                     setAlert("Success");
                 } else {
@@ -47,14 +54,12 @@ export default function AddUser() {
                     txtError.push(err.response.data['detail']);
                 } else if (err.request) {
                     txtError.push("Server is maintain.");
-                    localStorage.removeItem('persist:root');
+                    localStorage.clear();
                 }
-                data.password = "";
-                data.passwordConfirm = "";
-                setError(txtError);
+                cleanData(txtError);
             });
         } else {
-            setError(txtError);
+            cleanData(txtError);
         }
     }
 
@@ -64,6 +69,17 @@ export default function AddUser() {
             ...values,
             [event.target.name]: event.target.value,
         }));
+    }
+
+    const cleanData = txtError => {
+        setError(txtError);
+        setData({
+            email: data.email,
+            name: data.name,
+            tel: data.tel,
+            password: "",
+            passwordConfirm: "",
+        });
     }
 
     return (

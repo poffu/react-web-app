@@ -1,7 +1,18 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from 'react-redux';
+import { clearToken, getToken } from "./redux/auth";
 
 export default function Header() {
+
+    const token = useSelector(getToken);
+    const dispatch = useDispatch();
+
+    const logOut = () => {
+        localStorage.clear();
+        dispatch(clearToken(token));
+    };
+
     return (
         <header>
             <div className="container-fluid p-0">
@@ -22,7 +33,7 @@ export default function Header() {
                                     <Link to={process.env.REACT_APP_URL_ADD_USER} className="nav-link text-black">Add User</Link>
                                 </li>
                                 <li className="nav-item fw-bold">
-                                    <Link to={process.env.REACT_APP_URL_ROOT} className="nav-link text-black" onClick={() => localStorage.removeItem('persist:root')}>Logout</Link>
+                                    <Link to={process.env.REACT_APP_URL_LOGIN} className="nav-link text-black" onClick={logOut}>Logout</Link>
                                 </li>
                             </ul>
                         </div>

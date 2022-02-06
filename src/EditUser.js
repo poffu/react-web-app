@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import Header from './Header'
+import Header from './Header';
 import axios from 'axios';
-import { ValidateInput, ValidatePasswordConfirm } from './css/js/main'
-import Alert from './Alert'
+import { ValidateInput, ValidatePasswordConfirm } from './css/js/main';
+import Alert from './Alert';
 import { Redirect } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { getToken } from "./redux/auth";
 
 export default function EditUser() {
     const [data, setData] = useState({
@@ -15,7 +17,8 @@ export default function EditUser() {
     });
     const [isRedirect, setIsRedirect] = useState(false);
     const [alert, setAlert] = useState("");
-    const [errors, setErrors] = useState([]);
+    const [error, setError] = useState([]);
+    const token = useSelector(getToken);
 
     useEffect(() => {
         var userId = sessionStorage.getItem(process.env.REACT_APP_SESSION_EDIT);
@@ -30,33 +33,39 @@ export default function EditUser() {
         return <Redirect to={process.env.REACT_APP_URL_LIST_USER} />;
     }
 
+
     const getData = async userId => {
+        let params = {
+            userId,
+        };
         await axios.get(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_GET_USER, {
-            params: {
-                userId,
+            headers: {
+                Authorization: 'Bearer ' + token,
+                'Content-Type': 'application/json'
             }
-        }).then(response => {
+        }, { params: { params } }).then(response => {
             setData(response.data);
-            sessionStorage.removeItem(process.env.REACT_APP_SESSION_EDIT);
-        }).catch(() => {
-            localStorage.removeItem('persist:root');
+        }).catch((err) => {
+            if (err.response) {
+                setAlert(err.response.data['detail']);
+            } else if (err.request) {
+                setAlert("Server is maintain");
+                localStorage.clear();
+            }
         });
+        sessionStorage.removeItem(process.env.REACT_APP_SESSION_EDIT);
     }
 
-    const handleSubmit = async evt => {
-        evt.preventDefault();
+    const handleSubmit = async e => {
+        e.preventDefault();
         let txtPassword = data.password;
         let txtPasswordConfirm = data.passwordConfirm;
         let txtError = [];
         let validateEmail = ValidateInput("Email", data.email, "^[\\w]+@[a-z]+\\.[a-z]+$");
         let validateName = ValidateInput("Name", data.name, "^[A-Za-z\\s]+$")
         let validateTel = ValidateInput("Tel", data.tel, "^[0][0-9]{9}$")
-        let validatePassword = "";
-        let validatePasswordConfirm = "";
-        if (txtPassword !== "" && txtPassword !== undefined) {
-            validatePassword = ValidateInput("Password", txtPassword, "^.*(?=.)(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$");
-            validatePasswordConfirm = ValidatePasswordConfirm(txtPassword, txtPasswordConfirm);
-        }
+        let validatePassword = ValidateInput("Password", txtPassword, "^.*(?=.)(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$");
+        let validatePasswordConfirm = ValidatePasswordConfirm(txtPassword, txtPasswordConfirm);
         validateEmail ? txtError.push(validateEmail) : txtError = [...txtError];
         validateName ? txtError.push(validateName) : txtError = [...txtError];
         validateTel ? txtError.push(validateTel) : txtError = [...txtError];
@@ -70,7 +79,12 @@ export default function EditUser() {
                 tel: data.tel,
                 password: data.password,
             };
-            await axios.put(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_EDIT_USER, params).then(response => {
+            await axios.put(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_EDIT_USER, {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                }
+            }, { params: params }).then(response => {
                 if (response.data) {
                     setAlert("Success");
                 } else {
@@ -81,14 +95,12 @@ export default function EditUser() {
                     txtError.push(err.response.data['detail']);
                 } else if (err.request) {
                     txtError.push("Server is maintain.");
-                    sessionStorage.removeItem(process.env.REACT_APP_SESSION_LOGIN);
+                    localStorage.clear();
                 }
-                data.password = "";
-                data.passwordConfirm = "";
-                setErrors(txtError);
+                cleanData(txtError);
             });
         } else {
-            setErrors(txtError);
+            cleanData(txtError);
         }
     }
 
@@ -98,6 +110,17 @@ export default function EditUser() {
             ...values,
             [event.target.name]: event.target.value,
         }));
+    }
+
+    const cleanData = txtError => {
+        setError(txtError);
+        setData({
+            email: data.email,
+            name: data.name,
+            tel: data.tel,
+            password: "",
+            passwordConfirm: "",
+        });
     }
 
     return (
@@ -112,10 +135,10 @@ export default function EditUser() {
                         <span className="contact100-form-title">
                             Edit User
                         </span>
-                        {errors.length > 0 &&
+                        {error.length > 0 &&
                             <div className="mb-4">
                                 <span className="text-danger text-center font-weight-bold input100">
-                                    {errors.map((error, index) => <div key={index}>{error}</div>)}
+                                    {error.map((error, index) => <div key={index}>{error}</div>)}
                                 </span>
                             </div>
                         }

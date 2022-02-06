@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import axios from 'axios';
 import { ValidateInput } from './css/js/main';
-import { useDispatch } from 'react-redux';
-import { login } from "./redux/auth";
+import { useDispatch, useSelector } from 'react-redux';
+import { login, getToken } from "./redux/auth";
 import { Redirect } from 'react-router-dom';
 
 export default function Login() {
@@ -12,7 +12,7 @@ export default function Login() {
     });
     const [error, setError] = useState([]);
     const dispatch = useDispatch();
-    const [isLogin, setIsLogin] = useState(false);
+    const token = useSelector(getToken);
 
     const handleSubmit = async e => {
         e.preventDefault();
@@ -26,10 +26,14 @@ export default function Login() {
                 email: data.email,
                 password: data.password,
             };
-            await axios.post(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LOGIN, params).then(response => {
+            await axios.post(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LOGIN, {
+                headers: {
+                    'content-type': 'application/json'
+                },
+            }, { params: params }).then(response => {
                 if (response.data !== null) {
                     dispatch(login(response.data));
-                    setIsLogin(true);
+                    localStorage.setItem('saved', new Date().getTime());
                 }
             }).catch(err => {
                 if (err.response) {
@@ -37,12 +41,11 @@ export default function Login() {
                 } else if (err.request) {
                     txtError.push("Server is maintain.");
                 }
-                setError(txtError);
+                cleanData(txtError);
             });
         } else {
-            setError(txtError);
+            cleanData(txtError);
         }
-        data.password = "";
     }
 
     const setParams = (event) => {
@@ -53,9 +56,19 @@ export default function Login() {
         }));
     }
 
+    const cleanData = txtError => {
+        setError(txtError);
+        setData(
+            {
+                email: data.email,
+                password: ""
+            }
+        );
+    }
+
     return (
         <div>
-            {isLogin && <Redirect to={process.env.REACT_APP_URL_LIST_USER} />}
+            {(token !== undefined && token !== null) && <Redirect to={process.env.REACT_APP_URL_LIST_USER} />}
             <div className="container-contact100">
                 <div className="wrap-contact100">
                     <form className="contact100-form validate-form" onSubmit={handleSubmit}>

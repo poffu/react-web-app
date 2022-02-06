@@ -1,5 +1,5 @@
 import React from "react";
-import './css/css/alert.css'
+import './css/css/alert.css';
 import { Link } from "react-router-dom";
 
 export default function Alert(props) {
@@ -11,7 +11,7 @@ export default function Alert(props) {
                     <span id="messageAlert">{props.message}</span>
                 </div>
                 <div className="ConfirmFooter px-3 pt-4 text-center">
-                    <Link to={process.env.REACT_APP_URL_ROOT} className="ConfirmButton btn btn-primary">OK</Link>
+                    <Link to={process.env.REACT_APP_URL_LIST_USER} className="ConfirmButton btn btn-primary" onClick={() => window.location.reload()}>OK</Link>
                 </div>
             </div>
         </div>
