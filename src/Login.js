@@ -26,15 +26,16 @@ export default function Login() {
                 email: data.email,
                 password: data.password,
             };
-            await axios.post(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LOGIN, {
+            await axios({
+                method: 'post',
+                url: `${process.env.REACT_APP_URL_API}${process.env.REACT_APP_URL_LOGIN}`,
                 headers: {
                     'content-type': 'application/json'
                 },
-            }, { params: params }).then(response => {
-                if (response.data !== null) {
-                    dispatch(login(response.data));
-                    localStorage.setItem('saved', new Date().getTime());
-                }
+                params: params
+            }).then(response => {
+                dispatch(login(response.data));
+                localStorage.setItem('saved', new Date().getTime());
             }).catch(err => {
                 if (err.response) {
                     txtError.push(err.response.data['detail']);

@@ -33,24 +33,23 @@ export default function EditUser() {
         return <Redirect to={process.env.REACT_APP_URL_LIST_USER} />;
     }
 
-
     const getData = async userId => {
-        let params = {
-            userId,
-        };
-        await axios.get(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_GET_USER, {
+        await axios({
+            method: 'get',
+            url: `${process.env.REACT_APP_URL_API}${process.env.REACT_APP_URL_GET_USER}`,
             headers: {
-                Authorization: 'Bearer ' + token,
-                'Content-Type': 'application/json'
-            }
-        }, { params: { params } }).then(response => {
+                Authorization: `Bearer ${token}`,
+                'content-Type': 'application/json'
+            },
+            params: { userId }
+        }).then(response => {
             setData(response.data);
         }).catch((err) => {
             if (err.response) {
                 setAlert(err.response.data['detail']);
             } else if (err.request) {
-                setAlert("Server is maintain");
                 localStorage.clear();
+                setAlert("Server is maintain");
             }
         });
         sessionStorage.removeItem(process.env.REACT_APP_SESSION_EDIT);
@@ -79,12 +78,15 @@ export default function EditUser() {
                 tel: data.tel,
                 password: data.password,
             };
-            await axios.put(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_EDIT_USER, {
+            await axios({
+                method: 'put',
+                url: process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_EDIT_USER,
                 headers: {
-                    Authorization: 'Bearer ' + token,
+                    Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'
-                }
-            }, { params: params }).then(response => {
+                },
+                params: params
+            }).then(response => {
                 if (response.data) {
                     setAlert("Success");
                 } else {
@@ -94,8 +96,8 @@ export default function EditUser() {
                 if (err.response) {
                     txtError.push(err.response.data['detail']);
                 } else if (err.request) {
-                    txtError.push("Server is maintain.");
                     localStorage.clear();
+                    txtError.push("Server is maintain.");
                 }
                 cleanData(txtError);
             });

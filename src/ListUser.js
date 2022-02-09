@@ -17,38 +17,40 @@ export default function ListUser() {
 	const token = useSelector(getToken);
 
 	useEffect(() => {
-		const getListUserServer = async () => {
-			await axios.get(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LIST_USER, {
-				headers: {
-					Authorization: 'Bearer ' + token,
-					'Content-Type': 'application/json'
-				},
-			}).then(response => {
-				let userList = response.data;
-				setUsers([...userList]);
-				setCurrentPage(1);
-				setListPage([...getListPage(userList)]);
-			}).catch(() => {
-				localStorage.clear();
-				setAlert("Server is maintain");
-			});
-		}
 		if (token !== undefined && token !== null) {
+			let getListUserServer = async () => {
+				await axios({
+					method: 'get',
+					url: `${process.env.REACT_APP_URL_API}${process.env.REACT_APP_URL_LIST_USER}`,
+					headers: {
+						Authorization: `Bearer ${token}`,
+						'content-Type': 'application/json'
+					},
+				}).then(response => {
+					let userList = response.data;
+					setUsers([...userList]);
+					setCurrentPage(1);
+					setListPage([...getListPage(userList)]);
+				}).catch(() => {
+					localStorage.clear();
+					setAlert("Server is maintain");
+				});
+			}
 			getListUserServer();
 		}
 	}, []);
 
 	const handleSubmit = async e => {
 		e.preventDefault();
-		let params = {
-			name: name,
-		};
-		await axios.get(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_LIST_USER, {
+		await axios({
+			method: 'get',
+			url: `${process.env.REACT_APP_URL_API}${process.env.REACT_APP_URL_LIST_USER}`,
 			headers: {
-				'content-Type': 'application/json',
-				Authorization: 'Bearer ' + token,
+				Authorization: `Bearer ${token}`,
+				'content-Type': 'application/json'
 			},
-		}, { params: params }).then(response => {
+			params: { name }
+		}).then(response => {
 			let userList = response.data;
 			setUsers([...userList]);
 			setCurrentPage(1);
@@ -68,12 +70,15 @@ export default function ListUser() {
 		e.preventDefault();
 		let userId = sessionStorage.getItem(process.env.REACT_APP_SESSION_DELETE);
 		sessionStorage.removeItem(process.env.REACT_APP_SESSION_DELETE);
-		await axios.delete(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_DELETE_USER, {
+		await axios({
+			method: 'delete',
+			url: `${process.env.REACT_APP_URL_API}${process.env.REACT_APP_URL_DELETE_USER}`,
 			headers: {
-				Authorization: 'Bearer ' + token,
+				Authorization: `Bearer ${token}`,
 				'content-Type': 'application/json'
 			},
-		}, { params: { userId: userId } }).then(response => {
+			params: { userId }
+		}).then(response => {
 			if (response.data) {
 				setAlert("Success");
 			}

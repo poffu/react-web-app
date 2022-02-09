@@ -38,12 +38,15 @@ export default function AddUser() {
                 tel: data.tel,
                 password: data.password,
             };
-            await axios.post(process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_ADD_USER, {
+            await axios({
+                method: 'post',
+                url: `${process.env.REACT_APP_URL_API}${process.env.REACT_APP_URL_ADD_USER}`,
                 headers: {
-                    Authorization: 'Bearer ' + token,
-                    'Content-Type': 'application/json'
-                }
-            }, { params: params }).then(response => {
+                    Authorization: `Bearer ${token}`,
+                    'content-type': 'application/json'
+                },
+                data: { params }
+            }).then(response => {
                 if (response.data) {
                     setAlert("Success");
                 } else {
@@ -53,8 +56,8 @@ export default function AddUser() {
                 if (err.response) {
                     txtError.push(err.response.data['detail']);
                 } else if (err.request) {
-                    txtError.push("Server is maintain.");
                     localStorage.clear();
+                    txtError.push("Server is maintain.");
                 }
                 cleanData(txtError);
             });
