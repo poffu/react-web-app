@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import Header from './Header';
 import axios from 'axios';
 import { ValidateInput, ValidatePasswordConfirm } from './css/js/main';
 import Alert from './Alert';
 import { useSelector } from 'react-redux';
-import { getToken } from "./redux/auth";
+import { getToken } from './redux/auth';
 
 export default function AddUser() {
     const [data, setData] = useState({
@@ -14,17 +14,17 @@ export default function AddUser() {
         password: '',
         passwordConfirm: '',
     });
-    const [alert, setAlert] = useState("");
+    const [alert, setAlert] = useState('');
     const [error, setError] = useState([]);
     const token = useSelector(getToken);
 
     const handleSubmit = async e => {
         e.preventDefault();
         let txtError = [];
-        let validateEmail = ValidateInput("Email", data.email, "^[\\w]+@[a-z]+\\.[a-z]+$");
-        let validateName = ValidateInput("Name", data.name, "^[A-Za-z\\s]+$")
-        let validateTel = ValidateInput("Tel", data.tel, "^[0][0-9]{9}$")
-        let validatePassword = ValidateInput("Password", data.password, "^.*(?=.)(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$");
+        let validateEmail = ValidateInput('Email', data.email, '^[\\w]+@[a-z]+\\.[a-z]+$');
+        let validateName = ValidateInput('Name', data.name, '^[A-Za-z\\s]+$');
+        let validateTel = ValidateInput('Tel', data.tel, '^[0][0-9]{9}$');
+        let validatePassword = ValidateInput('Password', data.password, '^.*(?=.)(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$');
         let validatePasswordConfirm = ValidatePasswordConfirm(data.password, data.passwordConfirm);
         validateEmail ? txtError.push(validateEmail) : txtError = [...txtError];
         validateName ? txtError.push(validateName) : txtError = [...txtError];
@@ -45,19 +45,19 @@ export default function AddUser() {
                     Authorization: `Bearer ${token}`,
                     'content-type': 'application/json'
                 },
-                data: { params }
+                data: params
             }).then(response => {
                 if (response.data) {
-                    setAlert("Success");
+                    setAlert('Success');
                 } else {
-                    setAlert("Failure");
+                    setAlert('Failure');
                 }
             }).catch(err => {
                 if (err.response) {
                     txtError.push(err.response.data['detail']);
                 } else if (err.request) {
                     localStorage.clear();
-                    txtError.push("Server is maintain.");
+                    txtError.push('Server is maintain.');
                 }
                 cleanData(txtError);
             });
@@ -80,8 +80,8 @@ export default function AddUser() {
             email: data.email,
             name: data.name,
             tel: data.tel,
-            password: "",
-            passwordConfirm: "",
+            password: '',
+            passwordConfirm: '',
         });
     }
 

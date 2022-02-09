@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import Login from './Login';
 import ListUser from './ListUser';
 import AddUser from './AddUser';
 import EditUser from './EditUser';
 import { useSelector } from 'react-redux';
-import { getToken } from "./redux/auth";
+import { getToken } from './redux/auth';
 
 export default function App() {
-    const [url, setUrl] = useState("");
+    const [url, setUrl] = useState('');
     const token = useSelector(getToken);
     const urlCurrent = window.location.pathname;
 

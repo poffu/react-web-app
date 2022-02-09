@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './css/css/list-user.css';
 import Header from './Header';
 import Alert from './Alert';
 import { Link } from "react-router-dom";
 import { useSelector } from 'react-redux';
-import { getToken } from "./redux/auth";
+import { getToken } from './redux/auth';
 
 export default function ListUser() {
 	const [users, setUsers] = useState([]);
-	const [name, setName] = useState("");
-	const [confirm, setConfirm] = useState("");
-	const [alert, setAlert] = useState("");
+	const [name, setName] = useState('');
+	const [confirm, setConfirm] = useState('');
+	const [alert, setAlert] = useState('');
 	const [currentPage, setCurrentPage] = useState(1);
 	const [listPage, setListPage] = useState([]);
 	const token = useSelector(getToken);
@@ -24,7 +24,7 @@ export default function ListUser() {
 					url: `${process.env.REACT_APP_URL_API}${process.env.REACT_APP_URL_LIST_USER}`,
 					headers: {
 						Authorization: `Bearer ${token}`,
-						'content-Type': 'application/json'
+						'content-type': 'application/json'
 					},
 				}).then(response => {
 					let userList = response.data;
@@ -33,7 +33,7 @@ export default function ListUser() {
 					setListPage([...getListPage(userList)]);
 				}).catch(() => {
 					localStorage.clear();
-					setAlert("Server is maintain");
+					setAlert('Server is maintain');
 				});
 			}
 			getListUserServer();
@@ -47,7 +47,7 @@ export default function ListUser() {
 			url: `${process.env.REACT_APP_URL_API}${process.env.REACT_APP_URL_LIST_USER}`,
 			headers: {
 				Authorization: `Bearer ${token}`,
-				'content-Type': 'application/json'
+				'content-type': 'application/json'
 			},
 			params: { name }
 		}).then(response => {
@@ -57,13 +57,13 @@ export default function ListUser() {
 			setListPage([...getListPage(userList)]);
 		}).catch(() => {
 			localStorage.clear();
-			setAlert("Server is maintain");
+			setAlert('Server is maintain');
 		});
 	}
 
 	const handleCancel = () => {
 		sessionStorage.removeItem(process.env.REACT_APP_SESSION_DELETE);
-		setConfirm("");
+		setConfirm('');
 	}
 
 	const handleOK = async e => {
@@ -75,21 +75,21 @@ export default function ListUser() {
 			url: `${process.env.REACT_APP_URL_API}${process.env.REACT_APP_URL_DELETE_USER}`,
 			headers: {
 				Authorization: `Bearer ${token}`,
-				'content-Type': 'application/json'
+				'content-type': 'application/json'
 			},
 			params: { userId }
 		}).then(response => {
 			if (response.data) {
-				setAlert("Success");
+				setAlert('Success');
 			}
 			else {
-				setAlert("Failure");
+				setAlert('Failure');
 			}
 		}).catch(() => {
 			localStorage.clear();
-			setAlert("Server is maintain");
+			setAlert('Server is maintain');
 		});
-		setConfirm("");
+		setConfirm('');
 	}
 
 	const getListPage = (userList) => {

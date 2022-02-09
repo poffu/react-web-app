@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import axios from 'axios';
 import { ValidateInput } from './css/js/main';
 import { useDispatch, useSelector } from 'react-redux';
-import { login, getToken } from "./redux/auth";
+import { login, getToken } from './redux/auth';
 import { Redirect } from 'react-router-dom';
 
 export default function Login() {
@@ -17,8 +17,8 @@ export default function Login() {
     const handleSubmit = async e => {
         e.preventDefault();
         let txtError = [];
-        let validateEmail = ValidateInput("Email", data.email, "^[\\w]+@[a-z]+\\.[a-z]+$");
-        let validatePassword = ValidateInput("Password", data.password);
+        let validateEmail = ValidateInput('Email', data.email, '^[\\w]+@[a-z]+\\.[a-z]+$');
+        let validatePassword = ValidateInput('Password', data.password);
         validateEmail ? txtError.push(validateEmail) : txtError = [...txtError];
         validatePassword ? txtError.push(validatePassword) : txtError = [...txtError];
         if (txtError.length === 0) {
@@ -40,7 +40,7 @@ export default function Login() {
                 if (err.response) {
                     txtError.push(err.response.data['detail']);
                 } else if (err.request) {
-                    txtError.push("Server is maintain.");
+                    txtError.push('Server is maintain.');
                 }
                 cleanData(txtError);
             });
@@ -62,7 +62,7 @@ export default function Login() {
         setData(
             {
                 email: data.email,
-                password: ""
+                password: ''
             }
         );
     }

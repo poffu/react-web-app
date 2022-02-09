@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import axios from 'axios';
 import { ValidateInput, ValidatePasswordConfirm } from './css/js/main';
 import Alert from './Alert';
 import { Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { getToken } from "./redux/auth";
+import { getToken } from './redux/auth';
 
 export default function EditUser() {
     const [data, setData] = useState({
+        userId: 0,
         email: '',
         name: '',
         tel: '',
@@ -16,7 +17,7 @@ export default function EditUser() {
         passwordConfirm: '',
     });
     const [isRedirect, setIsRedirect] = useState(false);
-    const [alert, setAlert] = useState("");
+    const [alert, setAlert] = useState('');
     const [error, setError] = useState([]);
     const token = useSelector(getToken);
 
@@ -39,17 +40,25 @@ export default function EditUser() {
             url: `${process.env.REACT_APP_URL_API}${process.env.REACT_APP_URL_GET_USER}`,
             headers: {
                 Authorization: `Bearer ${token}`,
-                'content-Type': 'application/json'
+                'content-type': 'application/json'
             },
             params: { userId }
         }).then(response => {
-            setData(response.data);
+            let user = response.data;
+            setData({
+                userId: user.userId,
+                email: user.email,
+                name: user.name,
+                tel: user.tel,
+                password: '',
+                passwordConfirm: ''
+            });
         }).catch((err) => {
             if (err.response) {
                 setAlert(err.response.data['detail']);
             } else if (err.request) {
                 localStorage.clear();
-                setAlert("Server is maintain");
+                setAlert('Server is maintain');
             }
         });
         sessionStorage.removeItem(process.env.REACT_APP_SESSION_EDIT);
@@ -60,10 +69,10 @@ export default function EditUser() {
         let txtPassword = data.password;
         let txtPasswordConfirm = data.passwordConfirm;
         let txtError = [];
-        let validateEmail = ValidateInput("Email", data.email, "^[\\w]+@[a-z]+\\.[a-z]+$");
-        let validateName = ValidateInput("Name", data.name, "^[A-Za-z\\s]+$")
-        let validateTel = ValidateInput("Tel", data.tel, "^[0][0-9]{9}$")
-        let validatePassword = ValidateInput("Password", txtPassword, "^.*(?=.)(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$");
+        let validateEmail = ValidateInput('Email', data.email, '^[\\w]+@[a-z]+\\.[a-z]+$');
+        let validateName = ValidateInput('Name', data.name, '^[A-Za-z\\s]+$')
+        let validateTel = ValidateInput('Tel', data.tel, '^[0][0-9]{9}$')
+        let validatePassword = ValidateInput('Password', txtPassword, '^.*(?=.)(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$');
         let validatePasswordConfirm = ValidatePasswordConfirm(txtPassword, txtPasswordConfirm);
         validateEmail ? txtError.push(validateEmail) : txtError = [...txtError];
         validateName ? txtError.push(validateName) : txtError = [...txtError];
@@ -83,21 +92,21 @@ export default function EditUser() {
                 url: process.env.REACT_APP_URL_API + process.env.REACT_APP_URL_EDIT_USER,
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    'content-type': 'application/json'
                 },
-                params: params
+                data: params
             }).then(response => {
                 if (response.data) {
-                    setAlert("Success");
+                    setAlert('Success');
                 } else {
-                    setAlert("Failure");
+                    setAlert('Failure');
                 }
             }).catch(err => {
                 if (err.response) {
                     txtError.push(err.response.data['detail']);
                 } else if (err.request) {
                     localStorage.clear();
-                    txtError.push("Server is maintain.");
+                    txtError.push('Server is maintain.');
                 }
                 cleanData(txtError);
             });
@@ -120,8 +129,8 @@ export default function EditUser() {
             email: data.email,
             name: data.name,
             tel: data.tel,
-            password: "",
-            passwordConfirm: "",
+            password: '',
+            passwordConfirm: '',
         });
     }
 
@@ -144,8 +153,7 @@ export default function EditUser() {
                                 </span>
                             </div>
                         }
-
-                        <input type="hidden" name="userId" value={data.userId} />
+                        {/* <input type="hidden" name="userId" value={data.userId} /> */}
                         <div className="wrap-input100 validate-input">
                             <span className="label-input100">Email</span>
                             <input className="input100" type="text" name="email" placeholder="Enter your email" value={data.email} onChange={setParams} />
