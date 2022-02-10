@@ -27,10 +27,7 @@ export default function ListUser() {
 						'content-type': 'application/json'
 					},
 				}).then(response => {
-					let userList = response.data;
-					setUsers([...userList]);
-					setCurrentPage(1);
-					setListPage([...getListPage(userList)]);
+					setPage(response.data);
 				}).catch(() => {
 					localStorage.clear();
 					setAlert('Server is maintain');
@@ -51,10 +48,7 @@ export default function ListUser() {
 			},
 			params: { name }
 		}).then(response => {
-			let userList = response.data;
-			setUsers([...userList]);
-			setCurrentPage(1);
-			setListPage([...getListPage(userList)]);
+			setPage(response.data);
 		}).catch(() => {
 			localStorage.clear();
 			setAlert('Server is maintain');
@@ -92,7 +86,7 @@ export default function ListUser() {
 		setConfirm('');
 	}
 
-	const getListPage = (userList) => {
+	const getListPage = userList => {
 		let listPage = [];
 		if (userList !== null) {
 			for (let i = 1; i <= Math.ceil(userList.length / 8); i++) {
@@ -100,6 +94,16 @@ export default function ListUser() {
 			}
 		}
 		return listPage;
+	}
+
+	const setPage = userList => {
+		setUsers([...userList]);
+		setCurrentPage(1);
+		if (userList.length > 0) {
+			setListPage([...getListPage(userList)]);
+		} else {
+			setListPage(userList);
+		}
 	}
 
 	return (
@@ -147,7 +151,10 @@ export default function ListUser() {
 										<td style={{ wordBreak: "break-all" }}>{user.email}</td>
 										<td style={{ wordBreak: "break-all" }}>{user.tel}</td>
 										<td className="d-flex justify-content-around border-0">
-											<Link to={process.env.REACT_APP_URL_EDIT_USER} className="btn btn-success btn-sm rounded-0" type="button" onClick={() => sessionStorage.setItem(process.env.REACT_APP_SESSION_EDIT, user.userId)}><i className="fa fa-edit" /></Link>
+											<Link to={process.env.REACT_APP_URL_EDIT_USER} className="btn btn-success btn-sm rounded-0" type="button" onClick={() => {
+												sessionStorage.setItem(process.env.REACT_APP_SESSION_EDIT, user.userId);
+												setPage([]);
+											}}><i className="fa fa-edit" /></Link>
 											<button className="btn btn-danger btn-sm rounded-0" type="button" onClick={
 												() => {
 													setConfirm("Do you want to delete this?");

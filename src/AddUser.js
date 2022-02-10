@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Header from './Header';
 import axios from 'axios';
-import { ValidateInput, ValidatePasswordConfirm } from './css/js/main';
+import { GetErrorValidateRegister } from './css/js/main';
 import Alert from './Alert';
 import { useSelector } from 'react-redux';
 import { getToken } from './redux/auth';
@@ -20,17 +20,7 @@ export default function AddUser() {
 
     const handleSubmit = async e => {
         e.preventDefault();
-        let txtError = [];
-        let validateEmail = ValidateInput('Email', data.email, '^[\\w]+@[a-z]+\\.[a-z]+$');
-        let validateName = ValidateInput('Name', data.name, '^[A-Za-z\\s]+$');
-        let validateTel = ValidateInput('Tel', data.tel, '^[0][0-9]{9}$');
-        let validatePassword = ValidateInput('Password', data.password, '^.*(?=.)(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$');
-        let validatePasswordConfirm = ValidatePasswordConfirm(data.password, data.passwordConfirm);
-        validateEmail ? txtError.push(validateEmail) : txtError = [...txtError];
-        validateName ? txtError.push(validateName) : txtError = [...txtError];
-        validateTel ? txtError.push(validateTel) : txtError = [...txtError];
-        validatePassword ? txtError.push(validatePassword) : txtError = [...txtError];
-        validatePasswordConfirm ? txtError.push(validatePasswordConfirm) : txtError = [...txtError];
+        let txtError = GetErrorValidateRegister(data);
         if (txtError.length === 0) {
             let params = {
                 email: data.email,

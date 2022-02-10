@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import axios from 'axios';
-import { ValidateInput, ValidatePasswordConfirm } from './css/js/main';
+import { GetErrorValidateRegister } from './css/js/main';
 import Alert from './Alert';
 import { Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -66,19 +66,7 @@ export default function EditUser() {
 
     const handleSubmit = async e => {
         e.preventDefault();
-        let txtPassword = data.password;
-        let txtPasswordConfirm = data.passwordConfirm;
-        let txtError = [];
-        let validateEmail = ValidateInput('Email', data.email, '^[\\w]+@[a-z]+\\.[a-z]+$');
-        let validateName = ValidateInput('Name', data.name, '^[A-Za-z\\s]+$')
-        let validateTel = ValidateInput('Tel', data.tel, '^[0][0-9]{9}$')
-        let validatePassword = ValidateInput('Password', txtPassword, '^.*(?=.)(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$');
-        let validatePasswordConfirm = ValidatePasswordConfirm(txtPassword, txtPasswordConfirm);
-        validateEmail ? txtError.push(validateEmail) : txtError = [...txtError];
-        validateName ? txtError.push(validateName) : txtError = [...txtError];
-        validateTel ? txtError.push(validateTel) : txtError = [...txtError];
-        validatePassword ? txtError.push(validatePassword) : txtError = [...txtError];
-        validatePasswordConfirm ? txtError.push(validatePasswordConfirm) : txtError = [...txtError];
+        let txtError = GetErrorValidateRegister(data);
         if (txtError.length === 0) {
             let params = {
                 userId: data.userId,
@@ -153,7 +141,6 @@ export default function EditUser() {
                                 </span>
                             </div>
                         }
-                        {/* <input type="hidden" name="userId" value={data.userId} /> */}
                         <div className="wrap-input100 validate-input">
                             <span className="label-input100">Email</span>
                             <input className="input100" type="text" name="email" placeholder="Enter your email" value={data.email} onChange={setParams} />
