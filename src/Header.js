@@ -1,10 +1,9 @@
-import React from "react";
+import {memo} from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { clearToken, getToken } from "./redux/auth";
 
-export default function Header() {
-
+function Header() {
     const token = useSelector(getToken);
     const dispatch = useDispatch();
 
@@ -43,3 +42,5 @@ export default function Header() {
         </header >
     );
 }
+
+export default memo(Header);

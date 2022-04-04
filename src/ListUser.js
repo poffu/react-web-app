@@ -8,13 +8,13 @@ import { useSelector } from 'react-redux';
 import { getToken } from './redux/auth';
 
 export default function ListUser() {
+	const token = useSelector(getToken);
 	const [users, setUsers] = useState([]);
 	const [name, setName] = useState('');
 	const [confirm, setConfirm] = useState('');
 	const [alert, setAlert] = useState('');
 	const [currentPage, setCurrentPage] = useState(1);
 	const [listPage, setListPage] = useState([]);
-	const token = useSelector(getToken);
 
 	useEffect(() => {
 		if (token !== undefined && token !== null) {
@@ -28,15 +28,19 @@ export default function ListUser() {
 					},
 				}).then(response => {
 					let userList = response.data;
-					setUsers([...userList]);
+					setUsers(userList);
 					setCurrentPage(1);
-					setListPage([...getListPage(userList)]);
+					setListPage(getListPage(userList));
 				}).catch(() => {
 					localStorage.clear();
 					setAlert('Server is maintain');
 				});
 			}
 			getListUserServer();
+		}
+
+		return () => {
+			setUsers([]);
 		}
 	}, []);
 
